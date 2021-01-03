@@ -1,5 +1,18 @@
+/** @jsxImportSource @emotion/react */
+import { css } from "@emotion/react";
 import Box from "./Box";
 import EditBox from "./EditBox";
+
+const allBoxesContainer = css`
+  width: 90%;
+  margin: auto;
+`;
+
+const boxContainer = css`
+  display: flex;
+  margin: 2em 0;
+`;
+
 const PageContent = ({
   pageData,
   boxes,
@@ -13,8 +26,7 @@ const PageContent = ({
   confirmDeleteBox,
 }) => {
   return (
-    <div>
-      <h1>This is a page with ID {pageData.id}</h1>
+    <div css={allBoxesContainer}>
       {boxes.map((box) => {
         if (box.id === editBoxId) {
           return (
@@ -31,12 +43,18 @@ const PageContent = ({
           );
         } else {
           return (
-            <Box
-              key={box.id}
-              id={box.id}
-              content={box.content}
-              switchEditBox={switchEditBox}
-            />
+            <div css={boxContainer} key={box.id}>
+              <Box
+                id={box.id}
+                content={box.content}
+                switchEditBox={switchEditBox}
+              />
+              <div>
+                <button onClick={() => switchEditBox(box.id, box.content)}>
+                  edit
+                </button>
+              </div>
+            </div>
           );
         }
       })}

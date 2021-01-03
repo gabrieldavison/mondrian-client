@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { data } from "../data";
 import PageContent from "./PageContent";
-import PageControls from "./PageControls";
+import PageHeader from "./PageHeader";
 
 const Page = (props) => {
   const [pageData, setPageData] = useState(undefined);
@@ -66,8 +66,6 @@ const Page = (props) => {
 
   const deleteBox = (id) => {
     if (confirmDeleteBox) {
-      //Delete Logic
-
       const updatedBoxes = boxes;
       const updateIndex = boxes.findIndex((box) => box.id === id);
       updatedBoxes.splice(updateIndex, 1);
@@ -91,7 +89,8 @@ const Page = (props) => {
   } else {
     return (
       <>
-        <PageControls
+        <PageHeader
+          pageURL={pageData.url}
           pageUnlocked={pageUnlocked}
           addBox={addBox}
           addPage={addPage}
