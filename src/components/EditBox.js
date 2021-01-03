@@ -4,6 +4,8 @@ const EditBox = ({
   setEditBoxContent,
   saveBox,
   cancelEditBox,
+  deleteBox,
+  confirmDeleteBox,
 }) => {
   return (
     <div>
@@ -12,6 +14,9 @@ const EditBox = ({
         onChange={(e) => setEditBoxContent(e.target.value)}
       ></textarea>
       <button onClick={() => saveBox(id)}>save</button>
+      <button onClick={() => deleteBox(id)}>
+        {confirmDeleteBox ? "are you sure?" : "delete"}
+      </button>
       <button onClick={cancelEditBox}>cancel</button>
     </div>
   );

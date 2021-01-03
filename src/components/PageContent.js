@@ -9,6 +9,8 @@ const PageContent = ({
   setEditBoxContent,
   saveBox,
   cancelEditBox,
+  deleteBox,
+  confirmDeleteBox,
 }) => {
   return (
     <div>
@@ -23,6 +25,8 @@ const PageContent = ({
               setEditBoxContent={setEditBoxContent}
               saveBox={saveBox}
               cancelEditBox={cancelEditBox}
+              deleteBox={deleteBox}
+              confirmDeleteBox={confirmDeleteBox}
             />
           );
         } else {

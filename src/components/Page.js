@@ -9,6 +9,7 @@ const Page = (props) => {
   const [pageUnlocked, setPageUnlocked] = useState(false); // Come back to this after you've added edit functionality
   const [editBoxId, setEditBoxId] = useState(false);
   const [editBoxContent, setEditBoxContent] = useState("");
+  const [confirmDeleteBox, setConfirmDeleteBox] = useState(false);
 
   //Gets data for page with ID that corresponds to URL
   useEffect(() => {
@@ -63,6 +64,24 @@ const Page = (props) => {
     return array.forEach((item, i) => (item.order = i));
   };
 
+  const deleteBox = (id) => {
+    if (confirmDeleteBox) {
+      //Delete Logic
+
+      const updatedBoxes = boxes;
+      const updateIndex = boxes.findIndex((box) => box.id === id);
+      updatedBoxes.splice(updateIndex, 1);
+      reorderBoxes(updatedBoxes);
+      setBoxes(updatedBoxes);
+      console.log("delete box", id);
+      setConfirmDeleteBox(false);
+      cancelEditBox();
+    } else {
+      console.log("are you sure");
+      setConfirmDeleteBox(true);
+    }
+  };
+
   const addPage = () => {
     console.log("add page");
   };
@@ -86,6 +105,8 @@ const Page = (props) => {
           setEditBoxContent={setEditBoxContent}
           saveBox={saveBox}
           cancelEditBox={cancelEditBox}
+          deleteBox={deleteBox}
+          confirmDeleteBox={confirmDeleteBox}
         />
       </>
     );
