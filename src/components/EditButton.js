@@ -1,8 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 
-import Button from "./Button";
-
 const EditButton = ({ children, onClick, showEditButton }) => {
   const editButtonStyles = css`
     //Button reset
