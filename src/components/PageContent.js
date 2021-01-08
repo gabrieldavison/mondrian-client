@@ -4,8 +4,9 @@ import Box from "./Box";
 import EditBox from "./EditBox";
 
 const allBoxesContainer = css`
-  width: 90%;
   margin: auto;
+  max-width: 900px;
+  width: 100%;
 `;
 
 const boxContainer = css`
@@ -14,6 +15,7 @@ const boxContainer = css`
 `;
 
 const PageContent = ({
+  pageContentState,
   pageData,
   boxes,
   switchEditBox,
@@ -49,11 +51,6 @@ const PageContent = ({
                 content={box.content}
                 switchEditBox={switchEditBox}
               />
-              <div>
-                <button onClick={() => switchEditBox(box.id, box.content)}>
-                  edit
-                </button>
-              </div>
             </div>
           );
         }

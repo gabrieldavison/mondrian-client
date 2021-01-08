@@ -6,8 +6,9 @@ import reset from "../styles/reset";
 
 const globalStyles = css`
   html {
-    font-family: monospace;
-    font-size: 16px;
+    font-family: "Source Code Pro", monospace;
+
+    /* font-size: 16px; */
   }
   body {
     width: 95%;
@@ -23,7 +24,7 @@ function App() {
     <div>
       <Global styles={[reset, globalStyles]} />
       <Router>
-        <Page path="/:pageId" />
+        <Page path="/:pageName" />
       </Router>
     </div>
   );
