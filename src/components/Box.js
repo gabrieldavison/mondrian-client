@@ -2,6 +2,7 @@
 import { css } from "@emotion/react";
 import { useState } from "react";
 import EditButton from "./EditButton";
+import ReactMarkdown from "react-markdown";
 
 const Box = ({ id, content, switchEditBox }) => {
   const [showEditButton, setShowEditButton] = useState(false);
@@ -36,10 +37,7 @@ const Box = ({ id, content, switchEditBox }) => {
       onMouseLeave={() => setShowEditButton(false)}
       css={boxStyles}
     >
-      <div
-        css={boxContentStyles}
-        dangerouslySetInnerHTML={{ __html: content }}
-      ></div>
+      <ReactMarkdown css={boxContentStyles}>{content}</ReactMarkdown>
 
       <EditButton
         showEditButton={showEditButton}
