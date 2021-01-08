@@ -21,14 +21,14 @@ const Page = ({ pageName, location }) => {
   const [addPageVisible, setAddPageVisible] = useState(false);
 
   //Coming back to this.
-  const [pageUnlocked, setPageUnlocked] = useState(false); // Come back to this after you've added edit functionality
+  // const [pageUnlocked, setPageUnlocked] = useState(false); // Come back to this after you've added edit functionality
 
   //Gets data for page with ID that corresponds to URL
   useEffect(() => {
     setPageContentState("loading");
     console.log(pageName);
     const apiURL = `${apiRoot}/pages/?name=${pageName}`;
-    const requestData = fetch(apiURL)
+    fetch(apiURL)
       .then((res) => res.json())
       .then((data) => {
         console.log(data);
@@ -59,7 +59,7 @@ const Page = ({ pageName, location }) => {
     const updatedBox = { ...updatedBoxes[boxIndex], content: editBoxContent };
     updatedBoxes[boxIndex] = updatedBox;
 
-    const response = await fetch(apiURL, {
+    await fetch(apiURL, {
       method: "PUT",
       mode: "cors",
       headers: {
@@ -207,7 +207,6 @@ const Page = ({ pageName, location }) => {
       {pageContentState === "loaded" || pageContentState === "notFound" ? (
         <PageHeader
           pageName={pageName}
-          pageUnlocked={pageUnlocked}
           addBox={addBox}
           showAddPageModal={showAddPageModal}
           cancelAddPage={cancelAddPage}
