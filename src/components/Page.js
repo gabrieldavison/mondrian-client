@@ -1,15 +1,11 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 import { useEffect, useState } from "react";
-import AddPageDialog from "./AddPageDialog";
 import PageContent from "./PageContent";
 import PageHeader from "./PageHeader";
 import { navigate } from "@reach/router";
 
-const pageContainer = css`
-  max-width: 1200px;
-  margin: auto;
-`;
+const apiRoot = "https://mondrian-api.herokuapp.com";
 
 const Page = ({ pageName, location }) => {
   const [updateData, setUpdateData] = useState(undefined);
@@ -30,7 +26,8 @@ const Page = ({ pageName, location }) => {
   //Gets data for page with ID that corresponds to URL
   useEffect(() => {
     setPageContentState("loading");
-    const apiURL = `http://localhost:8000/pages/?name=${pageName}`;
+    console.log(pageName);
+    const apiURL = `${apiRoot}/pages/?name=${pageName}`;
     const requestData = fetch(apiURL)
       .then((res) => res.json())
       .then((data) => {
@@ -55,7 +52,7 @@ const Page = ({ pageName, location }) => {
   };
 
   const saveBox = async (id) => {
-    const apiURL = `http://localhost:8000/boxes/${id}`;
+    const apiURL = `${apiRoot}/boxes/${id}`;
 
     const updatedBoxes = [...boxes];
     const boxIndex = updatedBoxes.findIndex((box) => box.id === id);
@@ -82,7 +79,7 @@ const Page = ({ pageName, location }) => {
   };
 
   const addBox = async () => {
-    const apiURL = "http://localhost:8000/boxes";
+    const apiURL = `${apiRoot}/boxes`;
 
     const newBoxData = {
       content: "",
@@ -117,7 +114,7 @@ const Page = ({ pageName, location }) => {
       return updatedItem;
     });
     console.log(updatedArray);
-    const apiURL = "http://localhost:8000/boxes";
+    const apiURL = `${apiRoot}/boxes`;
 
     await fetch(apiURL, {
       method: "PUT",
@@ -137,7 +134,7 @@ const Page = ({ pageName, location }) => {
       const deleteIndex = boxes.findIndex((box) => box.id === id);
       updatedBoxes.splice(deleteIndex, 1);
 
-      const apiURL = `http://localhost:8000/boxes/${id}`;
+      const apiURL = `${apiRoot}/boxes/${id}`;
 
       const response = await fetch(apiURL, {
         method: "DELETE",
@@ -168,7 +165,7 @@ const Page = ({ pageName, location }) => {
     const newPage = {
       name: pageNameContent,
     };
-    const apiURL = "http://localhost:8000/pages";
+    const apiURL = `${apiRoot}/pages`;
     let response = await fetch(apiURL, {
       method: "POST",
       headers: {
@@ -186,20 +183,42 @@ const Page = ({ pageName, location }) => {
     }
   };
 
+  const repositionBox = async (id, position) => {
+    let updatedBoxes = [...boxes];
+    const boxIndex = boxes.findIndex((box) => box.id === id);
+    const updatedBox = updatedBoxes[boxIndex];
+    updatedBox.position = position;
+    // Remove old box
+    updatedBoxes.splice(boxIndex, 1);
+    // Splice box into new position
+    updatedBoxes.splice(position - 1, 0, updatedBox);
+    updatedBoxes = await updateBoxPositions(updatedBoxes);
+    console.log(updatedBoxes);
+    setBoxes(updatedBoxes);
+  };
+
+  const pageContainer = css`
+    max-width: 1200px;
+    margin: auto;
+  `;
+
   return (
     <div css={pageContainer}>
-      <PageHeader
-        pageURL={pageName}
-        pageUnlocked={pageUnlocked}
-        addBox={addBox}
-        showAddPageModal={showAddPageModal}
-        cancelAddPage={cancelAddPage}
-        setPageNameContent={setPageNameContent}
-        addPage={addPage}
-        addPageVisible={addPageVisible}
-        pageContentState={pageContentState}
-        addPageErrorMessage={addPageErrorMessage}
-      />
+      {pageContentState === "loaded" || pageContentState === "notFound" ? (
+        <PageHeader
+          pageName={pageName}
+          pageUnlocked={pageUnlocked}
+          addBox={addBox}
+          showAddPageModal={showAddPageModal}
+          cancelAddPage={cancelAddPage}
+          setPageNameContent={setPageNameContent}
+          addPage={addPage}
+          addPageVisible={addPageVisible}
+          pageContentState={pageContentState}
+          addPageErrorMessage={addPageErrorMessage}
+          pathname={location.pathname}
+        />
+      ) : null}
 
       {pageContentState === "loading" ? <h1>loading</h1> : null}
       {pageContentState === "notFound" ? <h1>page does not exist</h1> : null}
@@ -216,6 +235,8 @@ const Page = ({ pageName, location }) => {
           cancelEditBox={cancelEditBox}
           deleteBox={deleteBox}
           confirmDeleteBox={confirmDeleteBox}
+          pathname={location.pathname}
+          repositionBox={repositionBox}
         />
       ) : null}
     </div>

@@ -26,6 +26,8 @@ const PageContent = ({
   cancelEditBox,
   deleteBox,
   confirmDeleteBox,
+  pathname,
+  repositionBox,
 }) => {
   return (
     <div css={allBoxesContainer}>
@@ -41,6 +43,9 @@ const PageContent = ({
               cancelEditBox={cancelEditBox}
               deleteBox={deleteBox}
               confirmDeleteBox={confirmDeleteBox}
+              repositionBox={repositionBox}
+              allPositions={boxes.map((box) => box.position)}
+              currentPosition={box.position}
             />
           );
         } else {
@@ -50,6 +55,7 @@ const PageContent = ({
                 id={box.id}
                 content={box.content}
                 switchEditBox={switchEditBox}
+                pathname={pathname}
               />
             </div>
           );

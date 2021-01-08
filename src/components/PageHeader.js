@@ -23,7 +23,7 @@ const pageTitleStyles = css`
 const PageHeader = ({
   pageUnlocked,
   addBox,
-  pageURL,
+  pageName,
   showAddPageModal,
   addPageVisible,
   cancelAddPage,
@@ -31,6 +31,7 @@ const PageHeader = ({
   addPage,
   pageContentState,
   addPageErrorMessage,
+  pathname,
 }) => {
   return (
     <>
@@ -44,13 +45,10 @@ const PageHeader = ({
       ) : null}
       <div css={twoColDiv}>
         <div>
-          <h1 css={pageTitleStyles}>{pageURL}</h1>
+          <h1 css={pageTitleStyles}>{pageName}</h1>
         </div>
         <div css={siteControlsContainer}>
-          {pageContentState === "loaded" ? (
-            <Button>{pageUnlocked ? "lock" : "unlock"}</Button>
-          ) : null}
-          {pageContentState === "loaded" ? (
+          {pageContentState === "loaded" && pathname !== "/" ? (
             <Button onClick={addBox}>add box</Button>
           ) : null}
           <Button onClick={showAddPageModal}>add page</Button>

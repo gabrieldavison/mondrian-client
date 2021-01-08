@@ -24,6 +24,7 @@ const Button = ({ children, onClick, customStyles }) => {
     }
 
     //Button styles
+    background-color: white;
     padding: 0.2em;
     border: 2px solid black;
     font-family: inherit;

@@ -4,7 +4,7 @@ import { useState } from "react";
 import EditButton from "./EditButton";
 import ReactMarkdown from "react-markdown";
 
-const Box = ({ id, content, switchEditBox }) => {
+const Box = ({ id, content, switchEditBox, pathname }) => {
   const [showEditButton, setShowEditButton] = useState(false);
 
   const boxStyles = css`
@@ -38,14 +38,15 @@ const Box = ({ id, content, switchEditBox }) => {
       css={boxStyles}
     >
       <ReactMarkdown css={boxContentStyles}>{content}</ReactMarkdown>
-
-      <EditButton
-        showEditButton={showEditButton}
-        css={editButtonStyles}
-        onClick={() => switchEditBox(id, content)}
-      >
-        edit
-      </EditButton>
+      {pathname !== "/" ? (
+        <EditButton
+          showEditButton={showEditButton}
+          css={editButtonStyles}
+          onClick={() => switchEditBox(id, content)}
+        >
+          edit
+        </EditButton>
+      ) : null}
     </div>
   );
 };

@@ -17,6 +17,9 @@ const globalStyles = css`
   h1 {
     font-size: 2em;
   }
+  a {
+    color: #45a4e9;
+  }
 `;
 
 function App() {
@@ -25,6 +28,7 @@ function App() {
       <Global styles={[reset, globalStyles]} />
       <Router>
         <Page path="/:pageName" />
+        <Page path="/" pageName={"home"} />
       </Router>
     </div>
   );
