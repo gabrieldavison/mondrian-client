@@ -4,7 +4,7 @@ import { useState } from "react";
 import EditButton from "./EditButton";
 import ReactMarkdown from "react-markdown";
 
-const Box = ({ id, content, switchEditBox, pathname }) => {
+const Box = ({ id, content, switchEditBox, pathname, pageLocked }) => {
   const [showEditButton, setShowEditButton] = useState(false);
 
   const boxStyles = css`
@@ -38,7 +38,7 @@ const Box = ({ id, content, switchEditBox, pathname }) => {
       css={boxStyles}
     >
       <ReactMarkdown css={boxContentStyles}>{content}</ReactMarkdown>
-      {pathname !== "/" ? (
+      {pathname !== "/" && !pageLocked ? (
         <EditButton
           showEditButton={showEditButton}
           css={editButtonStyles}

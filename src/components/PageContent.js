@@ -28,6 +28,7 @@ const PageContent = ({
   confirmDeleteBox,
   pathname,
   repositionBox,
+  pageLocked,
 }) => {
   return (
     <div css={allBoxesContainer}>
@@ -56,6 +57,7 @@ const PageContent = ({
                 content={box.content}
                 switchEditBox={switchEditBox}
                 pathname={pathname}
+                pageLocked={pageLocked}
               />
             </div>
           );

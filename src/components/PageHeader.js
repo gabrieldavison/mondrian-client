@@ -1,7 +1,8 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
-import AddPageDialog from "./AddPageDialog";
+import InputDialog from "./InputDialog";
 import Button from "./Button";
+import LockPageDialog from "./LockPageDialog";
 
 const twoColDiv = css`
   margin: 1.5em 0;
@@ -21,37 +22,36 @@ const pageTitleStyles = css`
 `;
 
 const PageHeader = ({
-  pageUnlocked,
   addBox,
   pageName,
-  showAddPageModal,
-  addPageVisible,
-  cancelAddPage,
-  setPageNameContent,
-  addPage,
   pageContentState,
-  addPageErrorMessage,
   pathname,
+  setAddPageDialogVisible,
+  pageLocked,
+  setLockPageDialogVisible,
+  setUnlockPageDialogVisible,
 }) => {
   return (
     <>
-      {addPageVisible ? (
-        <AddPageDialog
-          cancelAddPage={cancelAddPage}
-          setPageNameContent={setPageNameContent}
-          addPage={addPage}
-          addPageErrorMessage={addPageErrorMessage}
-        />
-      ) : null}
       <div css={twoColDiv}>
         <div>
           <h1 css={pageTitleStyles}>{pageName}</h1>
         </div>
         <div css={siteControlsContainer}>
-          {pageContentState === "loaded" && pathname !== "/" ? (
+          {pageLocked ? (
+            <Button onClick={setUnlockPageDialogVisible}>unlock page</Button>
+          ) : (
+            <Button onClick={() => setLockPageDialogVisible(true)}>
+              lock page
+            </Button>
+          )}
+
+          {pageContentState === "loaded" && pathname !== "/" && !pageLocked ? (
             <Button onClick={addBox}>add box</Button>
           ) : null}
-          <Button onClick={showAddPageModal}>add page</Button>
+          <Button onClick={() => setAddPageDialogVisible(true)}>
+            add page
+          </Button>
         </div>
       </div>
     </>
