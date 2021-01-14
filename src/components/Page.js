@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import PageContent from "./PageContent";
 import PageHeader from "./PageHeader";
 import { navigate } from "@reach/router";
@@ -22,7 +22,6 @@ const Page = ({ pageName, location }) => {
   const [pageLocked, setPageLocked] = useState(false);
   const [pageToken, setPageToken] = useState(undefined);
   //State of boxes
-  const [boxes, setBoxes] = useState(undefined);
   const [editBoxId, setEditBoxId] = useState(false);
   const [editBoxContent, setEditBoxContent] = useState("");
   const [confirmDeleteBox, setConfirmDeleteBox] = useState(false);
@@ -30,39 +29,41 @@ const Page = ({ pageName, location }) => {
   const [addPageDialogVisible, setAddPageDialogVisible] = useState(false); //This needs to be renamed to stay consistent
   const [addPageDialogInput, setAddPageDialogInput] = useState("");
   const [addPageDialogErrors, setAddPageDialogErrors] = useState("");
-
   const [unlockPageDialogVisible, setUnlockPageDialogVisible] = useState(false); //Break out dialog state into here
   const [unlockPageDialogInput, setUnlockPageDialogInput] = useState("");
   const [unlockPageDialogErrors, setUnlockPageDialogErrors] = useState("");
   const [lockPageDialogVisible, setLockPageDialogVisible] = useState(false); // Break out dialog state into this component
 
-  //Gets data for page with ID that corresponds to URL
-  useEffect(() => {
-    setPageContentState("loading");
-    retrieveToken();
-    console.log(pageName);
+  const getPageData = useCallback(() => {
     const apiURL = `${apiRoot}/pages/?name=${pageName}`;
+
     fetch(apiURL)
       .then((res) => res.json())
       .then((data) => {
         console.log(data);
         setPageData(data);
-        setBoxes(data.Boxes);
         setPageLocked(data.locked);
         setPageContentState("loaded");
       })
       .catch((error) => pageNotFound(error));
-  }, [pageName, updateData]);
+  }, [pageName]);
 
-  const retrieveToken = () => {
+  const retrieveToken = useCallback(() => {
     const token = localStorage.getItem(`${pageName}Token`);
     if (token) {
       console.log("loaded token", token);
       setPageToken(token);
     }
-  };
+  }, [pageName]);
 
-  const authHeader = () => {
+  //Gets data for page with ID that corresponds to URL
+  useEffect(() => {
+    setPageContentState("loading");
+    retrieveToken();
+    getPageData();
+  }, [pageName, updateData, getPageData, retrieveToken]);
+
+  const getAuthHeader = () => {
     if (pageToken) {
       return { Authorization: `Bearer ${pageToken}` };
     } else {
@@ -84,7 +85,7 @@ const Page = ({ pageName, location }) => {
   const saveBox = async (id) => {
     const apiURL = `${apiRoot}/boxes/${id}`;
 
-    const updatedBoxes = [...boxes];
+    const updatedBoxes = [...pageData.Boxes];
     const boxIndex = updatedBoxes.findIndex((box) => box.id === id);
     const updatedBox = { ...updatedBoxes[boxIndex], content: editBoxContent };
     updatedBoxes[boxIndex] = updatedBox;
@@ -94,13 +95,13 @@ const Page = ({ pageName, location }) => {
       mode: "cors",
       headers: {
         "Content-Type": "application/json",
-        ...authHeader(),
+        ...getAuthHeader(),
       },
       body: JSON.stringify(updatedBox),
     });
 
     cancelEditBox();
-    setBoxes(updatedBoxes);
+    setPageData({ ...pageData, Boxes: updatedBoxes });
   };
 
   const cancelEditBox = () => {
@@ -123,17 +124,17 @@ const Page = ({ pageName, location }) => {
       mode: "cors",
       headers: {
         "Content-Type": "application/json",
-        ...authHeader(),
+        ...getAuthHeader(),
       },
       body: JSON.stringify(newBoxData), // body data type must match "Content-Type" header
     });
     newBox = await newBox.json();
 
-    let newBoxesArray = [newBox, ...boxes];
+    let newBoxesArray = [newBox, ...pageData.Boxes];
     //Update box position to compensate for new box
     newBoxesArray = await updateBoxPositions(newBoxesArray);
     console.log(newBoxesArray);
-    setBoxes(newBoxesArray);
+    setPageData({ ...pageData, Boxes: newBoxesArray });
     switchEditBox(newBox.id, newBox.content);
   };
 
@@ -153,7 +154,7 @@ const Page = ({ pageName, location }) => {
       mode: "cors",
       headers: {
         "Content-Type": "application/json",
-        ...authHeader(),
+        ...getAuthHeader(),
       },
       body: JSON.stringify(updatedArray),
     });
@@ -163,8 +164,8 @@ const Page = ({ pageName, location }) => {
 
   const deleteBox = async (id) => {
     if (confirmDeleteBox) {
-      const updatedBoxes = boxes;
-      const deleteIndex = boxes.findIndex((box) => box.id === id);
+      const updatedBoxes = [...pageData.boxes];
+      const deleteIndex = updatedBoxes.findIndex((box) => box.id === id);
       updatedBoxes.splice(deleteIndex, 1);
 
       const apiURL = `${apiRoot}/boxes/${id}`;
@@ -173,7 +174,7 @@ const Page = ({ pageName, location }) => {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          ...authHeader(),
+          ...getAuthHeader(),
         },
         body: JSON.stringify({ PageId: pageData.id }),
       });
@@ -181,17 +182,13 @@ const Page = ({ pageName, location }) => {
       console.log(response);
 
       updateBoxPositions(updatedBoxes);
-      setBoxes(updatedBoxes);
+      setPageData({ ...pageData, Boxes: updatedBoxes });
       setConfirmDeleteBox(false);
       cancelEditBox();
     } else {
       setConfirmDeleteBox(true);
     }
   };
-
-  // const showAddPageModal = () => {
-  //   setAddPageVisible(true);
-  // };
 
   const cancelAddPageDialog = () => {
     setAddPageDialogErrors("");
@@ -222,8 +219,8 @@ const Page = ({ pageName, location }) => {
   };
 
   const repositionBox = async (id, position) => {
-    let updatedBoxes = [...boxes];
-    const boxIndex = boxes.findIndex((box) => box.id === id);
+    let updatedBoxes = [...pageData.Boxes];
+    const boxIndex = updatedBoxes.findIndex((box) => box.id === id);
     const updatedBox = updatedBoxes[boxIndex];
     updatedBox.position = position;
     // Remove old box
@@ -232,7 +229,7 @@ const Page = ({ pageName, location }) => {
     updatedBoxes.splice(position - 1, 0, updatedBox);
     updatedBoxes = await updateBoxPositions(updatedBoxes);
     console.log(updatedBoxes);
-    setBoxes(updatedBoxes);
+    setPageData({ ...pageData, Boxes: updatedBoxes });
   };
 
   const lockPage = async (email, password) => {
@@ -340,7 +337,7 @@ const Page = ({ pageName, location }) => {
         <PageContent
           pageContentState={pageContentState}
           pageData={pageData}
-          boxes={boxes}
+          boxes={pageData.Boxes}
           editBoxId={editBoxId}
           switchEditBox={switchEditBox}
           editBoxContent={editBoxContent}
