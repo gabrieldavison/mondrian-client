@@ -6,6 +6,8 @@ import PageHeader from "./PageHeader";
 import { navigate } from "@reach/router";
 import InputDialog from "./InputDialog";
 import LockPageDialog from "./LockPageDialog";
+import validateAddPageInput from "../utils/validateAddPageInput";
+import OptionsDialog from "./OptionsDialog";
 
 let apiRoot;
 if (process.env.REACT_APP_USE_ENV === "DEV") {
@@ -13,55 +15,53 @@ if (process.env.REACT_APP_USE_ENV === "DEV") {
 } else if (process.env.REACT_APP_USE_ENV === "PRODUCTION") {
   apiRoot = process.env.REACT_APP_PRODUCTION_API;
 }
-console.log(apiRoot);
 const Page = ({ pageName, location }) => {
-  //State of current page
-  const [updateData, setUpdateData] = useState(undefined); //Used to force re-render when new page created has the same name as non-existent page
+  //State of page
   const [pageContentState, setPageContentState] = useState("loading");
   const [pageData, setPageData] = useState(undefined);
   const [pageLocked, setPageLocked] = useState(false);
   const [pageToken, setPageToken] = useState(undefined);
-  //State of boxes
+  //State of edit box
   const [editBoxId, setEditBoxId] = useState(false);
   const [editBoxContent, setEditBoxContent] = useState("");
   const [confirmDeleteBox, setConfirmDeleteBox] = useState(false);
-  //Page dialogs
-  const [addPageDialogVisible, setAddPageDialogVisible] = useState(false); //This needs to be renamed to stay consistent
+  //State of page dialogs
+  // These need to be refactored into one piece of state that decides which dialog is visible
+  const [dialogVisible, setDialogVisible] = useState("none");
   const [addPageDialogInput, setAddPageDialogInput] = useState("");
   const [addPageDialogErrors, setAddPageDialogErrors] = useState("");
-  const [unlockPageDialogVisible, setUnlockPageDialogVisible] = useState(false); //Break out dialog state into here
   const [unlockPageDialogInput, setUnlockPageDialogInput] = useState("");
   const [unlockPageDialogErrors, setUnlockPageDialogErrors] = useState("");
-  const [lockPageDialogVisible, setLockPageDialogVisible] = useState(false); // Break out dialog state into this component
+
+  const retrieveToken = useCallback(() => {
+    const token = localStorage.getItem(`${pageName}Token`);
+    if (token) {
+      console.log(token);
+      setPageToken(token);
+      setPageLocked(false);
+    }
+  }, [pageName]);
 
   const getPageData = useCallback(() => {
     const apiURL = `${apiRoot}/pages/?name=${pageName}`;
-
     fetch(apiURL)
       .then((res) => res.json())
       .then((data) => {
         console.log(data);
         setPageData(data);
         setPageLocked(data.locked);
+        retrieveToken();
         setPageContentState("loaded");
       })
       .catch((error) => pageNotFound(error));
-  }, [pageName]);
-
-  const retrieveToken = useCallback(() => {
-    const token = localStorage.getItem(`${pageName}Token`);
-    if (token) {
-      console.log("loaded token", token);
-      setPageToken(token);
-    }
-  }, [pageName]);
+  }, [pageName, retrieveToken]);
 
   //Gets data for page with ID that corresponds to URL
   useEffect(() => {
     setPageContentState("loading");
-    retrieveToken();
     getPageData();
-  }, [pageName, updateData, getPageData, retrieveToken]);
+    // retrieveToken();
+  }, [pageName, getPageData, retrieveToken]);
 
   const getAuthHeader = () => {
     if (pageToken) {
@@ -72,19 +72,16 @@ const Page = ({ pageName, location }) => {
   };
 
   const pageNotFound = (error) => {
-    console.log("not found");
     setPageContentState("notFound");
   };
 
   const switchEditBox = (id, content) => {
-    console.log(id);
     setEditBoxId(id);
     setEditBoxContent(content);
   };
 
   const saveBox = async (id) => {
     const apiURL = `${apiRoot}/boxes/${id}`;
-
     const updatedBoxes = [...pageData.Boxes];
     const boxIndex = updatedBoxes.findIndex((box) => box.id === id);
     const updatedBox = { ...updatedBoxes[boxIndex], content: editBoxContent };
@@ -105,7 +102,6 @@ const Page = ({ pageName, location }) => {
   };
 
   const cancelEditBox = () => {
-    console.log("cancel box");
     setEditBoxId(false);
     setEditBoxContent("");
   };
@@ -133,7 +129,6 @@ const Page = ({ pageName, location }) => {
     let newBoxesArray = [newBox, ...pageData.Boxes];
     //Update box position to compensate for new box
     newBoxesArray = await updateBoxPositions(newBoxesArray);
-    console.log(newBoxesArray);
     setPageData({ ...pageData, Boxes: newBoxesArray });
     switchEditBox(newBox.id, newBox.content);
   };
@@ -146,7 +141,6 @@ const Page = ({ pageName, location }) => {
       updatedItem.position = i + 1;
       return updatedItem;
     });
-    console.log(updatedArray);
     const apiURL = `${apiRoot}/boxes`;
 
     await fetch(apiURL, {
@@ -164,13 +158,14 @@ const Page = ({ pageName, location }) => {
 
   const deleteBox = async (id) => {
     if (confirmDeleteBox) {
-      const updatedBoxes = [...pageData.boxes];
+      console.log(pageData);
+      const updatedBoxes = [...pageData.Boxes];
       const deleteIndex = updatedBoxes.findIndex((box) => box.id === id);
       updatedBoxes.splice(deleteIndex, 1);
 
       const apiURL = `${apiRoot}/boxes/${id}`;
 
-      const response = await fetch(apiURL, {
+      await fetch(apiURL, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -178,8 +173,6 @@ const Page = ({ pageName, location }) => {
         },
         body: JSON.stringify({ PageId: pageData.id }),
       });
-
-      console.log(response);
 
       updateBoxPositions(updatedBoxes);
       setPageData({ ...pageData, Boxes: updatedBoxes });
@@ -192,11 +185,15 @@ const Page = ({ pageName, location }) => {
 
   const cancelAddPageDialog = () => {
     setAddPageDialogErrors("");
-    setAddPageDialogVisible(false);
+    setDialogVisible("none");
     setAddPageDialogInput("");
   };
 
   const addPage = async (name) => {
+    if (!validateAddPageInput(addPageDialogInput))
+      return setAddPageDialogErrors(
+        "page name may only contain lower case letters, numbers, '-' and '_'"
+      );
     const newPage = {
       name: addPageDialogInput,
     };
@@ -214,7 +211,9 @@ const Page = ({ pageName, location }) => {
     } else {
       cancelAddPageDialog();
       navigate(`/${newPage.name}`, { state: { update: true } });
-      setUpdateData(newPage.name);
+      //New pages come back without boxes array.
+      setPageData({ ...response, Boxes: [] });
+      setPageContentState("loaded");
     }
   };
 
@@ -228,16 +227,13 @@ const Page = ({ pageName, location }) => {
     // Splice box into new position
     updatedBoxes.splice(position - 1, 0, updatedBox);
     updatedBoxes = await updateBoxPositions(updatedBoxes);
-    console.log(updatedBoxes);
     setPageData({ ...pageData, Boxes: updatedBoxes });
   };
 
   const lockPage = async (email, password) => {
     const pageUpdate = { email, password };
-
     const apiURL = `${apiRoot}/pages/${pageData.id}`;
-
-    const response = await fetch(apiURL, {
+    await fetch(apiURL, {
       method: "PATCH",
 
       headers: {
@@ -245,14 +241,20 @@ const Page = ({ pageName, location }) => {
       },
       body: JSON.stringify(pageUpdate),
     }).then((res) => res.json());
-
-    console.log(response);
-
+    setPageData({ ...pageData, locked: true });
     setPageLocked(true);
+  };
+  const handleLockPageClick = () => {
+    if (pageData.locked) {
+      localStorage.removeItem(`${pageName}Token`);
+      setPageLocked(true);
+    } else {
+      setDialogVisible("lockPage");
+    }
   };
 
   const cancelUnlockPage = () => {
-    setUnlockPageDialogVisible(false);
+    setDialogVisible("none");
     setUnlockPageDialogInput("");
     setUnlockPageDialogErrors([]);
   };
@@ -268,16 +270,65 @@ const Page = ({ pageName, location }) => {
       },
       body: JSON.stringify({ password: unlockPageDialogInput }),
     }).then((res) => res.json());
-    console.log(response);
     if (response.token) {
-      console.log("success");
       setPageToken(response.token);
       setPageLocked(false);
       localStorage.setItem(`${pageName}Token`, response.token);
+      cancelUnlockPage();
     } else {
-      console.log(response.message);
       setUnlockPageDialogErrors([response.message]);
     }
+  };
+
+  const exportPageData = () => {
+    const dataToExport = pageData.Boxes.map((box) => {
+      return { position: box.position, content: box.content };
+    });
+
+    console.log(dataToExport);
+    // console.log(dataToExport);
+    const dataJson = JSON.stringify(dataToExport);
+    console.log(dataJson);
+    const dataBlob = new Blob([dataJson], { type: "application/json" });
+    const dataURL = URL.createObjectURL(dataBlob);
+    const downloadLink = document.createElement("a");
+    downloadLink.download = "exported-data.json";
+    downloadLink.href = dataURL;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  };
+
+  const importPageData = (e) => {
+    const importedFile = e.target.files[0];
+    const fileReader = new FileReader();
+    fileReader.readAsText(importedFile);
+    fileReader.onload = async (e) => {
+      const apiURL = `${apiRoot}/box-collection`;
+      let importedPageData = JSON.parse(e.target.result);
+
+      importedPageData = importedPageData.map((item) => {
+        return { ...item, PageId: pageData.id };
+      });
+
+      let newBoxes = await fetch(apiURL, {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeader(),
+        },
+        body: JSON.stringify(importedPageData), // body data type must match "Content-Type" header
+      });
+      newBoxes = await newBoxes.json();
+
+      const updatedBoxes = await updateBoxPositions([
+        ...newBoxes,
+        ...pageData.Boxes,
+      ]);
+      setPageData({ ...pageData, Boxes: updatedBoxes });
+      setDialogVisible("none");
+    };
   };
 
   const pageContainer = css`
@@ -287,7 +338,15 @@ const Page = ({ pageName, location }) => {
 
   return (
     <div css={pageContainer}>
-      {addPageDialogVisible ? (
+      {dialogVisible === "options" ? (
+        <OptionsDialog
+          exportPageData={exportPageData}
+          importPageData={importPageData}
+          onClickCancel={() => setDialogVisible("none")}
+        />
+      ) : null}
+
+      {dialogVisible === "addPage" ? (
         <InputDialog
           value={addPageDialogInput}
           onClickSubmit={addPage}
@@ -299,14 +358,14 @@ const Page = ({ pageName, location }) => {
         />
       ) : null}
 
-      {lockPageDialogVisible ? (
+      {dialogVisible === "lockPage" ? (
         <LockPageDialog
-          setLockPageDialogVisible={setLockPageDialogVisible}
+          setDialogVisible={setDialogVisible}
           lockPage={lockPage}
         />
       ) : null}
 
-      {unlockPageDialogVisible ? (
+      {dialogVisible === "unlockPage" ? (
         <InputDialog
           onClickSubmit={unlockPage}
           onClickCancel={cancelUnlockPage}
@@ -324,10 +383,9 @@ const Page = ({ pageName, location }) => {
           addBox={addBox}
           pageContentState={pageContentState}
           pathname={location.pathname}
-          setAddPageDialogVisible={setAddPageDialogVisible}
+          setDialogVisible={setDialogVisible}
           pageLocked={pageLocked}
-          setLockPageDialogVisible={setLockPageDialogVisible}
-          setUnlockPageDialogVisible={setUnlockPageDialogVisible}
+          handleLockPageClick={handleLockPageClick}
         />
       ) : null}
 

@@ -8,7 +8,7 @@ import {
   pageDialogStyles,
 } from "../styles/pageDialog";
 
-const LockPageDialog = ({ setLockPageDialogVisible, lockPage }) => {
+const LockPageDialog = ({ lockPage, setDialogVisible }) => {
   const [emailInput, setEmailInput] = useState("");
   const [passwordInput, setPasswordInput] = useState("");
   const [confirmPasswordInput, setConfirmPasswordInput] = useState("");
@@ -33,7 +33,7 @@ const LockPageDialog = ({ setLockPageDialogVisible, lockPage }) => {
       setEmailInput("");
       setPasswordInput("");
       setConfirmPasswordInput("");
-      setLockPageDialogVisible(false);
+      setDialogVisible("none");
     } else setValidationErrors(errors);
   };
 
@@ -63,9 +63,7 @@ const LockPageDialog = ({ setLockPageDialogVisible, lockPage }) => {
         ></input>
         <div>
           <Button onClick={validate}>submit</Button>
-          <Button onClick={() => setLockPageDialogVisible(false)}>
-            cancel
-          </Button>
+          <Button onClick={() => setDialogVisible("none")}>cancel</Button>
         </div>
         <ul>
           {validationErrors.map((error) => (

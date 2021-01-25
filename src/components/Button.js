@@ -35,6 +35,7 @@ const Button = ({ children, onClick, customStyles }) => {
     :hover {
       background-color: black;
       color: white;
+      border: 2px solid white;
     }
     ${customStyles}
   `;

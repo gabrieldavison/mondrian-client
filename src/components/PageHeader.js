@@ -7,9 +7,15 @@ import LockPageDialog from "./LockPageDialog";
 const twoColDiv = css`
   margin: 1.5em 0;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   div {
-    width: 50%;
+    width: 100%;
+  }
+  @media (min-width: 600px) {
+    flex-direction: row;
+    div {
+      width: 50%;
+    }
   }
 `;
 
@@ -26,10 +32,9 @@ const PageHeader = ({
   pageName,
   pageContentState,
   pathname,
-  setAddPageDialogVisible,
   pageLocked,
-  setLockPageDialogVisible,
-  setUnlockPageDialogVisible,
+  handleLockPageClick,
+  setDialogVisible,
 }) => {
   return (
     <>
@@ -39,19 +44,20 @@ const PageHeader = ({
         </div>
         <div css={siteControlsContainer}>
           {pageLocked ? (
-            <Button onClick={setUnlockPageDialogVisible}>unlock page</Button>
-          ) : (
-            <Button onClick={() => setLockPageDialogVisible(true)}>
-              lock page
+            <Button onClick={() => setDialogVisible("unlockPage")}>
+              unlock page
             </Button>
+          ) : (
+            <Button onClick={handleLockPageClick}>lock page</Button>
           )}
 
           {pageContentState === "loaded" && pathname !== "/" && !pageLocked ? (
             <Button onClick={addBox}>add box</Button>
           ) : null}
-          <Button onClick={() => setAddPageDialogVisible(true)}>
-            add page
-          </Button>
+          <Button onClick={() => setDialogVisible("addPage")}>add page</Button>
+          {pathname !== "/" && !pageLocked ? (
+            <Button onClick={() => setDialogVisible("options")}>...</Button>
+          ) : null}
         </div>
       </div>
     </>

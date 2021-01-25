@@ -6,12 +6,19 @@ import reset from "../styles/reset";
 
 const globalStyles = css`
   html {
-    font-family: "Source Code Pro", monospace;
+    box-sizing: border-box;
+  }
+  *,
+  *:before,
+  *:after {
+    box-sizing: inherit;
+  }
 
-    /* font-size: 16px; */
+  html {
+    font-family: "Source Code Pro", monospace;
   }
   body {
-    width: 95%;
+    width: 100%;
     margin: auto;
   }
   h1 {

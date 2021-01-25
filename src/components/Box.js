@@ -3,11 +3,13 @@ import { css } from "@emotion/react";
 import { useState } from "react";
 import EditButton from "./EditButton";
 import ReactMarkdown from "react-markdown";
+import markdownStyles from "../styles/markdownStyles";
 
 const Box = ({ id, content, switchEditBox, pathname, pageLocked }) => {
   const [showEditButton, setShowEditButton] = useState(false);
 
   const boxStyles = css`
+    box-sizing: border-box;
     position: relative;
     background-color: black;
     color: white;
@@ -25,6 +27,7 @@ const Box = ({ id, content, switchEditBox, pathname, pageLocked }) => {
   const boxContentStyles = css`
     p {
       font-size: 1.2em;
+      margin: 1.5em;
     }
     h1 {
       margin: 0.2em 0;
@@ -37,7 +40,7 @@ const Box = ({ id, content, switchEditBox, pathname, pageLocked }) => {
       onMouseLeave={() => setShowEditButton(false)}
       css={boxStyles}
     >
-      <ReactMarkdown css={boxContentStyles}>{content}</ReactMarkdown>
+      <ReactMarkdown css={markdownStyles}>{content}</ReactMarkdown>
       {pathname !== "/" && !pageLocked ? (
         <EditButton
           showEditButton={showEditButton}
