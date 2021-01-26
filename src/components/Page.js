@@ -36,7 +36,6 @@ const Page = ({ pageName, location }) => {
   const retrieveToken = useCallback(() => {
     const token = localStorage.getItem(`${pageName}Token`);
     if (token) {
-      console.log(token);
       setPageToken(token);
       setPageLocked(false);
     }
@@ -47,7 +46,6 @@ const Page = ({ pageName, location }) => {
     fetch(apiURL)
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
         setPageData(data);
         setPageLocked(data.locked);
         retrieveToken();
@@ -158,7 +156,6 @@ const Page = ({ pageName, location }) => {
 
   const deleteBox = async (id) => {
     if (confirmDeleteBox) {
-      console.log(pageData);
       const updatedBoxes = [...pageData.Boxes];
       const deleteIndex = updatedBoxes.findIndex((box) => box.id === id);
       updatedBoxes.splice(deleteIndex, 1);
@@ -285,10 +282,7 @@ const Page = ({ pageName, location }) => {
       return { position: box.position, content: box.content };
     });
 
-    console.log(dataToExport);
-    // console.log(dataToExport);
     const dataJson = JSON.stringify(dataToExport);
-    console.log(dataJson);
     const dataBlob = new Blob([dataJson], { type: "application/json" });
     const dataURL = URL.createObjectURL(dataBlob);
     const downloadLink = document.createElement("a");

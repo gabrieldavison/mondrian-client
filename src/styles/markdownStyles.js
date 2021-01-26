@@ -1,6 +1,5 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
-import emotionNormalize from "emotion-normalize";
 
 const markdownStyles = css`
   h1,

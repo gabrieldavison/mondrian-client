@@ -24,16 +24,6 @@ const Box = ({ id, content, switchEditBox, pathname, pageLocked }) => {
     right: 0;
   `;
 
-  const boxContentStyles = css`
-    p {
-      font-size: 1.2em;
-      margin: 1.5em;
-    }
-    h1 {
-      margin: 0.2em 0;
-    }
-  `;
-
   return (
     <div
       onMouseEnter={() => setShowEditButton(true)}

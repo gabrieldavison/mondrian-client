@@ -1,6 +1,5 @@
 /** @jsxImportSource @emotion/react */
 import { useState } from "react";
-import { css } from "@emotion/react";
 import Button from "./Button";
 import {
   pageDialogContainer,

@@ -1,8 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
-import InputDialog from "./InputDialog";
 import Button from "./Button";
-import LockPageDialog from "./LockPageDialog";
 
 const twoColDiv = css`
   margin: 1.5em 0;

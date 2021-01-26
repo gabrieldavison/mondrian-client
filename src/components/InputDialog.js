@@ -8,7 +8,6 @@ import {
 } from "../styles/pageDialog";
 
 const InputDialog = ({
-  addPageErrorMessage,
   onClickSubmit,
   onClickCancel,
   placeholder,
