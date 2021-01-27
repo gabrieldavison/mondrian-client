@@ -258,7 +258,6 @@ const Page = ({ pageName, location }) => {
 
   const unlockPage = async () => {
     const apiURL = `${apiRoot}/pages/${pageData.id}`;
-
     const response = await fetch(apiURL, {
       method: "POST",
 

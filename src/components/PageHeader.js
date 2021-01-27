@@ -41,13 +41,15 @@ const PageHeader = ({
           <h1 css={pageTitleStyles}>{pageName}</h1>
         </div>
         <div css={siteControlsContainer}>
-          {pageLocked ? (
-            <Button onClick={() => setDialogVisible("unlockPage")}>
-              unlock page
-            </Button>
-          ) : (
-            <Button onClick={handleLockPageClick}>lock page</Button>
-          )}
+          {pageContentState === "loaded" && pathname !== "/" ? (
+            pageLocked ? (
+              <Button onClick={() => setDialogVisible("unlockPage")}>
+                unlock page
+              </Button>
+            ) : (
+              <Button onClick={handleLockPageClick}>lock page</Button>
+            )
+          ) : null}
 
           {pageContentState === "loaded" && pathname !== "/" && !pageLocked ? (
             <Button onClick={addBox}>add box</Button>
