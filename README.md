@@ -1,19 +1,19 @@
-# [Demo](https://mondrian-client.netlify.app/)
+# [utxt](https://utxt.page/)
 
 # [Link to server code](https://github.com/gabrieldavison/mondrian-server)
 
-Mondrian is a tool for building simple web pages out of text boxes.
+utxt is a tool for building simple web pages out of text boxes.
 
-It's currently in its very early stages.
+These pages can be viewed and edited by anyone with a link. You can also choose to password protect a page to restrict who can edit it.
 
-At the moment it can be used to build single pages formatted using markdown. These pages can be viewed and edited by anyone with a link.
+Currently I use it to store a [list of links for my instagram bio](https://utxt.page/links).
 
-Try out the demo to see how this works.
+This project was built using React, Express, Node.js and sqlite.
 
-This project was built using React for the front end and Node.js with Postgres on the back end.
-
-Features that are coming soon...
+Features I want to add...
 
 [ ] Improved markdown support (currently some tags are not working)
-[ ] Drag and drop functionality for reordering of boxes.
+[x] Export page data to json / import page data
+[ ] Export page to html file so you can host / edit it yourself.
+[ ] Custom stylesheets
 [ ] Allow embedding of one page inside another.
