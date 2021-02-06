@@ -13,7 +13,11 @@ This project was built using React, Express, Node.js and sqlite.
 Features I want to add...
 
 [ ] Improved markdown support (currently some tags are not working)
+
 [x] Export page data to json / import page data
+
 [ ] Export page to html file so you can host / edit it yourself.
+
 [ ] Custom stylesheets
+
 [ ] Allow embedding of one page inside another.
